@@ -1,0 +1,37 @@
+#Comment out the filmilox.com section for local testing of production deployment
+
+filmilox.com {
+	reverse_proxy filmilox-client:3000
+
+	route /api/* {
+		uri strip_prefix /api
+		reverse_proxy filmilox-server:9000
+	}
+}
+
+http://filmilox.com {
+	reverse_proxy filmilox-client:3000
+
+	route /api/* {
+		uri strip_prefix /api
+		reverse_proxy filmilox-server:9000
+	}
+}
+
+filmilox.com:5000 {
+	reverse_proxy mongo-express:8081
+}
+www.filmilox.com {
+	redir https://filmilox.com
+}
+localhost:4000 {
+	reverse_proxy filmilox-client:3000
+
+	route /api/* {
+		uri strip_prefix /api
+		reverse_proxy filmilox-server:9000
+	}
+}
+localhost:5000 {
+	reverse_proxy mongo-express:8081
+}

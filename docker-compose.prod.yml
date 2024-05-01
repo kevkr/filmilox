@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  client:
+    container_name: filmilox-client
+    image: filmilox-client
+    build:
+      context: ./sys-src/client/
+      dockerfile: ./Dockerfile.prod
+    volumes:
+      - ./sys-src/client/:/app
+      - /app/node_modules
+    env_file:
+      - ./sys-src/client/prod.env
+    ports:
+      - "3000:3000"
+  server:
+    container_name: filmilox-server
+    image: filmilox-server
+    build:
+      context: ./sys-src/server/
+      dockerfile: ./Dockerfile.prod
+    depends_on:
+      - database
+    volumes:
+      - ./sys-src/server/:/app
+      - /app/node_modules
+    env_file:
+      - ./sys-src/server/prod.env
+    ports:
+      - "9000:9000"
+  database:
+    container_name: mongo
+    image: mongo
+    restart: always
+    env_file:
+      - ./mongo.prod.env
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./mongo.prod.env
+  caddy:
+    image: caddy
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "4000:4000"
+      - "5000:5000"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  caddy_data:
+    external: true
+  caddy_config:

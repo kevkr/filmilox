@@ -1,0 +1,31 @@
+image: sitespeedio/node:ubuntu-20.04-nodejs-16.5.0
+
+stages:
+  - build
+  - test
+
+build-job:
+  stage: build
+  script:
+    - npm install -g yarn
+    - echo "Building Filmilox"
+    - cd ./sys-src/client/
+    - yarn install
+    - yarn build
+    - echo "Build successfully!"
+
+unit-test-job:
+  stage: test
+  script:
+    - apt update
+    - apt install -y libcurl4
+    - npm install -g yarn
+    - echo "Testing filmilox client."
+    - cd ./sys-src/client/
+    - yarn install
+    - yarn test
+    - echo "Testing filmilox server."
+    - cd ../../sys-src/server/
+    - yarn install
+    - yarn test
+    - echo "Testing was successful!"

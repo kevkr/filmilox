@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  client:
+    container_name: filmilox-client
+    image: filmilox-client
+    build:
+      context: ./sys-src/client/
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./sys-src/client/:/app
+      - /app/node_modules
+    ports:
+      - 3000:3000  
+    environment:
+      - CHOKIDAR_USEPOLLING=true  
+      - WDS_SOCKET_PORT=0
+    env_file:
+      - ./sys-src/client/.env
+  server:
+    container_name: filmilox-server
+    image: filmilox-server
+    build:
+      context: ./sys-src/server/
+      dockerfile: ./Dockerfile
+    depends_on:
+      - database
+    volumes:
+      - ./sys-src/server/:/app
+      - /app/node_modules
+    environment:
+      MONGODB_CONNECTION_STRING: mongodb://root:root@mongo:27017/
+    env_file:
+      - ./sys-src/server/.env
+    ports:
+      - 9999:9999
+  database:
+    container_name: mongo
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongo:27017/     
+
+
